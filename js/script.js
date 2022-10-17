@@ -92,5 +92,5 @@ clearBtn.addEventListener('click', (e) => {
   
   e.preventDefault(); //Faz com que o formulario não seja enviado, deixando possivel apenas limpar o input
 
-  clearInputs()
+  clearInputs();
 })
