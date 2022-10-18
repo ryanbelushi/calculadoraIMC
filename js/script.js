@@ -44,6 +44,15 @@ const weightInput = document.querySelector("#weight")
 const calcBtn = document.querySelector("#calc-btn");
 const clearBtn = document.querySelector("#clear-btn");
 
+const calcContainer = document.querySelector("#calc-container");
+const resultContainer = document.querySelector("#result-container");
+
+const imcNumber = document.querySelector("#imc-number span");
+const imcInfo = document.querySelector("#imc-info span");
+
+const backBtn = document.querySelector("#back-btn");
+
+
 // Funções
 function createTable(data) {
   data.forEach(item => {
@@ -70,14 +79,28 @@ function createTable(data) {
 function clearInputs() {
   heightInput.value = "";
   weightInput.value = "";
+  imcNumber.classList = "";
+  imcInfo.classList = "";
 }
 
 function validDigits (text) {
   return text.replace(/[^0-9,]/g, "");
 }
 
+function calcImc(weight, height) {
+  const imc = (weight / (height * height)).toFixed(1); // Deixa apenas 1 casa decimal apos a virgula
+
+  return imc;
+}
+
+function showOrHideResults() {
+  calcContainer.classList.toggle("hide")
+  resultContainer.classList.toggle("hide") // Caso não tenha a classe hide ele irá inserir e caso tenha ele irá remover
+}
+
 // Inicialização
 createTable(data);
+
 
 // Eventos
 [heightInput, weightInput].forEach((el) => {
@@ -86,11 +109,66 @@ createTable(data);
 
     e.target.value = updateValue;
   })
-})
+});
+
+calcBtn.addEventListener("click", (e) => {
+  e.preventDefault();
+
+  const weight = +weightInput.value.replace(",", ".") // Convertendo virgula para ponto, o + serve para converter para number
+  const height = +heightInput.value.replace(",", ".")
+
+  if(!weight || !height) return; //Caso não haja nenhum desses valores ira dar um return para não ir para a prox tela
+
+  const imc = calcImc(weight, height);
+
+let info;
+
+data.forEach((item) => {
+  if (imc >= item.min && imc <= item.max){
+    info = item.info;
+  }
+});
+
+if (!info) return; //Caso tenha valores incorretos, não ira ser retornado nada
+
+imcNumber.innerText = imc;
+imcInfo.innerHTML = info;
+
+switch(info){
+  case "Magreza":
+    imcNumber.classList.add("low");
+    imcInfo.classList.add("low");
+    break;
+  case "Normal":
+    imcNumber.classList.add("good");
+    imcInfo.classList.add("good");
+    break;
+  case "Sobrepeso":
+    imcNumber.classList.add("medium");
+    imcInfo.classList.add("medium");
+    break;
+  case "Obesidade":
+    imcNumber.classList.add("high");
+    imcInfo.classList.add("high");
+    break;
+  case "Obesidade grave":
+    imcNumber.classList.add("high");
+    imcInfo.classList.add("high");
+    break;
+}
+
+showOrHideResults()
+});
 
 clearBtn.addEventListener('click', (e) => {
   
   e.preventDefault(); //Faz com que o formulario não seja enviado, deixando possivel apenas limpar o input
 
   clearInputs();
-})
+});
+
+backBtn.addEventListener("click", () => {
+
+  clearInputs();
+  showOrHideResults(); // Irá limpar os inputs e retornar a tela inicial, pois ele ira trocar a classe hide com a função showOrHideResults();
+});
